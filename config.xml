@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+	<information>
+		<name>G-Helper Kiosk</name>
+		<version>1.0</version>
+		<author>YourName</author>
+		<id>GHelperDash</id>
+	</information>
+	<menus>
+		<menu type="json">menu.json</menu>
+	</menus>
+</extension>

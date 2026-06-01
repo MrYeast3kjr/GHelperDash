@@ -1,0 +1,9 @@
+{
+	"items": [
+		{
+			"name": "G-Helper Kiosk",
+			"priority": 0,
+			"action": "lipc-set-prop com.lab126.browser open 'http://192.168.1.15:5000'"
+		}
+	]
+}

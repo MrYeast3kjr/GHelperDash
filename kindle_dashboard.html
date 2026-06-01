@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-Helper Dash</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            background: #fff; 
+            color: #000; 
+            text-align: center; 
+            margin: 0; 
+            padding: 5px; 
+        }
+        /* Reliable old-school layout for side-by-side stats */
+        .stats-table {
+            display: table;
+            width: 100%;
+            border-spacing: 22px;
+            margin-bottom: 60px;
+        }
+        .stat-box {
+            display: table-cell;
+            width: 50%;
+            height: 240px;
+            vertical-align: middle;
+            border: 8px solid #000;
+            font-size: 70px;
+            font-weight: normal;
+        }
+        .temp-val {
+            display: block;
+            font-size: 70px;
+            font-weight: bold;
+        }
+        /* Extra tall buttons for Kindle touch */
+        .btn { 
+            display: block; 
+            width: 96%; 
+            height: 250px; 
+            margin: 15px auto;
+            font-size: 70px; 
+            font-weight: bold; 
+            background: #fff; 
+            color: #000; 
+            border: 8px solid #000; 
+        }
+        .btn.active { 
+            background: #000; 
+            color: #fff; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stats-table">
+        <div class="stat-box">
+            CPU
+            <span class="temp-val" id="cpu_temp">--&deg;</span>
+        </div>
+        <div class="stat-box">
+            GPU
+            <span class="temp-val" id="gpu_temp">--&deg;</span>
+        </div>
+    </div>
+
+    <button class="btn" id="btn_SILENT" onclick="setMode('SILENT')">SILENT</button>
+    <button class="btn active" id="btn_BALANCED" onclick="setMode('BALANCED')">BALANCED</button>
+    <button class="btn" id="btn_TURBO" onclick="setMode('TURBO')">TURBO</button>
+
+    <script>
+        var currentMode = 'BALANCED';
+
+        function updateBtnUI() {
+            document.getElementById('btn_SILENT').className = 'btn';
+            document.getElementById('btn_BALANCED').className = 'btn';
+            document.getElementById('btn_TURBO').className = 'btn';
+            var activeBtn = document.getElementById('btn_' + currentMode);
+            if (activeBtn) activeBtn.className = 'btn active';
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            updateBtnUI();
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/mode/' + mode, true);
+            xhr.send();
+        }
+
+        function updateStats() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        document.getElementById('cpu_temp').innerHTML = (data.cpu_temp !== 'N/A') ? data.cpu_temp : '--&deg;';
+                        document.getElementById('gpu_temp').innerHTML = (data.gpu_temp !== 'N/A') ? data.gpu_temp : '--&deg;';
+                    } catch(e) {}
+                }
+            };
+            xhr.open('GET', '/data?_t=' + new Date().getTime(), true);
+            xhr.send();
+        }
+
+        setInterval(updateStats, 5000);
+        updateStats();
+        
+        // Full reload every minute to fix E-ink ghosting
+        setInterval(function() { window.location.reload(true); }, 60000);
+    </script>
+</body>
+</html>
